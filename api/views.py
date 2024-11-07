@@ -71,8 +71,11 @@ class InterviewViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['get'])
     def get_all_candidates_for_job(self, request, pk=None):
         job_id = pk
-        all_interview_ids_per_job = Interview.objects.filter(job_id=job_id).values_list("candidate__id", flat=True)
-        all_candidates_per_job = Candidate.objects.filter(id__in=all_interview_ids_per_job)
+        if job_id != 'all':
+            all_interview_ids_per_job = Interview.objects.filter(job_id=job_id).values_list("candidate__id", flat=True)
+            all_candidates_per_job = Candidate.objects.filter(id__in=all_interview_ids_per_job)
+        else:
+            all_candidates_per_job = Candidate.objects.all()
         serializer = CandidateSerializer(all_candidates_per_job, many=True)
         return Response(serializer.data)
 
