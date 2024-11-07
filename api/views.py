@@ -66,6 +66,30 @@ class InterviewViewSet(viewsets.ModelViewSet):
             raise ValidationError("Candidate is not assigned to this job and is not interviewing.")
         return Response({'RESPONSE SUCCESSFUL': True})
 
+    @action(detail=True, methods=['post'])
+    def assign_candidate_to_job(self, request, pk=None):
+        candidate_id = pk
+        job_id = self.request.data.get("job_id")
+        target_interview_stage = self.request.data.get("target_interview_stage")
+
+        interviews = Interview.objects.filter(candidate_id=candidate_id, job_id=job_id)
+
+        if interviews.exists():
+            # Assumes only one Interview object fulfills this candidate_id and job_id
+            # criteria.
+            interview = interviews[0]
+            interview.interview_stage = InterviewStage(target_interview_stage).value
+            interview.save()
+        else:  
+            # Create a new Interview object with the target interview stage if a
+            # candidate does not already have an interview with the job assigned to job_id.
+            Interview.objects.create(
+                interview_stage=InterviewStage(target_interview_stage).value,
+                candidate_id=candidate_id,
+                job_id=job_id)
+
+        return Response({'RESPONSE SUCCESSFUL': True})
+
     @action(detail=False)
     def get_all_candidates_per_interview_stage(self, request, pk=None):
         candidate_fields = ["candidate__id", "candidate__name", "candidate__email", "candidate__feedback"]
