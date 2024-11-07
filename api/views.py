@@ -18,6 +18,13 @@ class InterviewViewSet(viewsets.ModelViewSet):
     pagination = DefaultPaginator
     serializer_class = InterviewSerializer
 
+    @action(detail=False)
+    def get_all_interview_stages(self, request, pk=None):
+        values = InterviewStage.values()
+        format_words = lambda words: words.replace("_", " ").title()
+        all_values = [(value, format_words(value)) for value in values]
+        return Response({'all': all_values})
+
     @action(detail=True, methods=['post'])
     def assign_candidate_to_job(self, request, pk=None):
         candidate_id = pk

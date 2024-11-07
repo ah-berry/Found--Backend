@@ -15,6 +15,10 @@ class InterviewStage(str, Enum):
     TAKE_HOME_TEST = "take_home_test"
     INTERVIEWS_PASSED = "interviews_passed"
 
+    @classmethod
+    def values(cls):
+        return [key.value for key in cls]
+
 class Candidate(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     created_at = models.DateTimeField(auto_now_add=True)
